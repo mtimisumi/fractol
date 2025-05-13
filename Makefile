@@ -6,7 +6,7 @@
 #    By: mmisumi <mmisumi@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/08 13:18:47 by mmisumi           #+#    #+#              #
-#    Updated: 2025/05/12 15:37:03 by mmisumi          ###   ########.fr        #
+#    Updated: 2025/05/13 14:44:36 by mmisumi          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,7 @@ NAME := fractol
 SRCDIR := src
 OBJDIR := obj
 
-SRCS:= $(SRCDIR)/forreal.c
+SRCS:= $(SRCDIR)/yolo.c
 
 OBJS := $(addprefix $(OBJDIR)/, $(notdir $(SRCS:.c=.o)))
 

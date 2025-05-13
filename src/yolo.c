@@ -1,19 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   forreal.c                                          :+:      :+:    :+:   */
+/*   yolo.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mmisumi <mmisumi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/12 12:14:19 by mmisumi           #+#    #+#             */
-/*   Updated: 2025/05/13 14:11:56 by mmisumi          ###   ########.fr       */
+/*   Created: 2025/05/13 14:14:10 by mmisumi           #+#    #+#             */
+/*   Updated: 2025/05/13 14:52:38 by mmisumi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fractol.h"
 
-#define WIDTH 1000 
-#define	HEIGHT 1000
+#define WIDTH 2000 
+#define	HEIGHT 1500
 #define BLACK 0x00000000
 #define RED 0x00FF0000
 #define GREEN 0x0000FF00
@@ -21,30 +21,29 @@
 #define YELLOW 0x00FFFF00
 #define MAGENTA 0x00FF00FF
 
-typedef struct s_data
+typedef struct	s_data
 {
 	void	*img;
 	char	*addr;
-	//bits per pixel
 	int		bpp;
 	int		len;
 	int		endian;
 }			t_data;
 
-typedef struct s_complex
+typedef struct	s_cmplx
 {
-	float	real;
-}			t_complex;
+	float	zreal;
+	float	zi;
+	float	creal;
+	float	ci;
+}				t_cmplx;
 
-
-typedef struct	s_fractol
+typedef struct s_fractol
 {
-	void		*mlx;
-	void		*win;
-	t_data		data;
-	t_complex	z;
-	t_complex	c;
-}				t_fractol;
+	void	*mlx;
+	void	*win;
+	t_data	data;
+}			t_fractol;
 
 typedef struct s_renderpix
 {
@@ -56,16 +55,10 @@ typedef struct s_renderpix
 	float	y_min;
 }				t_renderpix;
 
-
 void	free_exit(t_fractol *fractol)
-{
-	//mlx destroy functions should be called (when something fails) in main function
-	//mlx_destroy_window, mlx_destroy_display, mlx_destroy_image
-	
+{	
 	if (fractol->data.img)
 		mlx_destroy_image(fractol->mlx, fractol->data.img);
-	// if (fractol->data)
-		// free(fractol->data);
 	if (fractol->win)
 		mlx_destroy_window(fractol->mlx, fractol->win);
 	if (fractol->mlx)
@@ -73,25 +66,28 @@ void	free_exit(t_fractol *fractol)
 		mlx_destroy_display(fractol->mlx);
 		free(fractol->mlx);
 	}
-	// if (fractol)
-	// 	free(fractol);
 	exit (1);
 }
-//returns float numbers resized to fit into mandelbrot so i can use for calculations
-//aspect ratio means is defined as the ratio of the width of the screen to its height
-// float	render_pixel(int xy, float new_min, float new_max, float old_max)
-// {
-// 	float	new_xy;
-// 	float	new_pos;
-// 	float	aspect_ratio;
 
-// 	aspect_ratio = (float)WIDTH / (float)HEIGHT;
-// 	new_xy = ((float)xy / old_max);
-// 	new_pos = (new_xy * (new_max - new_min));
-// 	return (new_pos + new_min);
+void	put_pixel(t_data *data, int x, int y, int color)
+{
+	char	*point;
+
+	point = data->addr + (y * data->len + x * (data->bpp / 8));
+	*(unsigned int*)point = color;
+}
+
+// __uint8_t	pixel_color(__uint8_t red, __uint8_t green, __uint8_t blue, __uint8_t alpha)
+// {
+// 	return (red << 24 || green << 16 || blue << 8 | alpha);
 // }
 
-void	render_pixel(int x, int y, t_complex *z, t_complex *c)
+__uint8_t	pixel_color(__uint8_t red, __uint8_t green, __uint8_t blue, __uint8_t alpha)
+{
+	return (alpha << 24 || red << 16 || green << 8 || blue );
+}
+
+void	render_pixel(int x, int y, t_cmplx *cmplx)
 {
 	t_renderpix	pix;
 	float		aspect_ratio;
@@ -111,16 +107,11 @@ void	render_pixel(int x, int y, t_complex *z, t_complex *c)
 		new_x *= aspect_ratio;
 	if (aspect_ratio < 1)
 		new_y /= aspect_ratio;
-	c->real = new_x;
-	c->i = new_y;
+	cmplx->creal = new_x;
+	cmplx->ci = new_y;
 }
 
-//mandelbrot: z = z^2 + c (z starting at 0,0)
-//first iteration will be c (x, yi)
-//(x + yi)^2 = real(x^2 + y^2) + imaginary(2xyi)
-//z = x^2 - y^2 + a + 2xiyb
-//a: c's x-axis, b: c's y-axis
-bool	calc_point(t_complex *z, t_complex *c)
+int	calc_point(t_cmplx *cmplx)
 {
 	float	tmp_real;
 	float	sum;
@@ -129,44 +120,27 @@ bool	calc_point(t_complex *z, t_complex *c)
 	tmp_real = 0;
 	sum = 0;
 	i = 0;
-
-	z_real = 0;
-	z->i = 0;
-	while(i < 200)
+	cmplx->zreal = 0;
+	cmplx->zi = 0;
+	while (i < 200)
 	{
-		//z^2
-		tmp_real = (complex->z_real * complex->z_real) - (z->i * z->i);
-		z->i = (2 * complex->z_real * z->i);
-		complex->z_real = tmp_real;
+		tmp_real = (cmplx->zreal * cmplx->zreal) - (cmplx->zi * cmplx->zi);
+		cmplx->zi = (2 * cmplx->zreal * cmplx->zi);
+		cmplx->zreal = tmp_real;
 
-		//z^2 + c
-		complex->z_real += c->real;
-		z->i += c->i;
+		cmplx->zreal += cmplx->creal;
+		cmplx->zi += cmplx->ci;
 
-		if ((complex->z_real *complex->z_real + z->i * z->i) > 4.0)
-			return (false);
+		if ((cmplx->zreal * cmplx->zreal + cmplx->zi * cmplx->zi) > 4.0)
+			return (i);
 		i++;
 	}
-	return (true);
-}
-
-//255 is full color
-unsigned int	pixel_color(unsigned int red, unsigned int green, unsigned int blue, unsigned int alpha)
-{
-	return (red << 24 || green << 16 | blue << 8 | alpha);
-}
-
-void	put_pixel(t_fractol *fractol, int x, int y, int color)
-{
-	char	*point;
-
-	point = fractol->data.addr + (y * fractol->data.len + x * (fractol->data.bpp / 8));
-	*(unsigned int*)point = color;
+	return (i);
 }
 
 void	mandelbrot(t_fractol *fractol)
 {
-	t_complex	complex;
+	t_cmplx	cmplx;
 	int			x;
 	int			y;
 	int			color;
@@ -178,18 +152,20 @@ void	mandelbrot(t_fractol *fractol)
 	{
 		while (x < WIDTH)
 		{
-			render_pixel(x, y, &complex);
-			
-			if (calc_point(&z, &c) == false)
-			{
-				// color = pixel_color(0, 0, 0, 255);
-				put_pixel(fractol, x, y, BLACK);
-			}
+			render_pixel(x, y, &cmplx);
+			color = calc_point(&cmplx);
+			if (color >= 20 && color < 40)
+				put_pixel(&fractol->data, x, y, RED);
+			else if (color >= 40 && color < 70)
+				put_pixel(&fractol->data, x, y, BLUE);
+			else if (color >= 70 && color < 100)
+				put_pixel(&fractol->data, x, y, GREEN);
+			else if (color >= 100 && color < 200)
+				put_pixel(&fractol->data, x, y, YELLOW);
+			else if (color == 200)
+				put_pixel(&fractol->data, x, y, MAGENTA);
 			else
-			{
-				// color = pixel_color(255, 0, 0, 255);
-				put_pixel(fractol, x, y, RED);
-			}
+				put_pixel(&fractol->data, x, y, BLACK);
 			x++;
 		}
 		y++;
@@ -200,9 +176,7 @@ void	mandelbrot(t_fractol *fractol)
 int	keyhooks(int keysym, t_fractol *fractol)
 {
 	if (keysym == 65307)
-	{
 		free_exit(fractol);
-	}
 	return (0);
 }
 
@@ -222,8 +196,7 @@ void	fractol()
 	fractol.data.addr = mlx_get_data_addr(fractol.data.img, &fractol.data.bpp, &fractol.data.len, &fractol.data.endian);
 	if (!fractol.data.addr)
 		free_exit(&fractol);
-	// put_pixel(&fractol, 4, 6, RED);
-	mandelbrot(&fractol);
+	// mandelbrot(&fractol);
 	mlx_put_image_to_window(fractol.mlx, fractol.win, fractol.data.img, 0, 0);
 	mlx_key_hook(fractol.win, keyhooks, &fractol);
 	mlx_loop(fractol.mlx);
