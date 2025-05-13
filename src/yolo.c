@@ -6,20 +6,29 @@
 /*   By: mmisumi <mmisumi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:14:10 by mmisumi           #+#    #+#             */
-/*   Updated: 2025/05/13 14:52:38 by mmisumi          ###   ########.fr       */
+/*   Updated: 2025/05/13 18:12:52 by mmisumi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fractol.h"
 
-#define WIDTH 2000 
-#define	HEIGHT 1500
+#define WIDTH 1000
+#define	HEIGHT 800
 #define BLACK 0x00000000
 #define RED 0x00FF0000
 #define GREEN 0x0000FF00
 #define BLUE 0x000000FF
 #define YELLOW 0x00FFFF00
 #define MAGENTA 0x00FF00FF
+#define INDIGO 0x004B0082
+
+void	available_params()
+{
+	ft_printf("Invalid parameters,\n");
+	ft_printf("Some available parameters:\n\n");
+	ft_printf(" mandelbrot\n julia\n julia -1,12 1,453\n");
+	exit(2);
+}
 
 typedef struct	s_data
 {
@@ -77,14 +86,9 @@ void	put_pixel(t_data *data, int x, int y, int color)
 	*(unsigned int*)point = color;
 }
 
-// __uint8_t	pixel_color(__uint8_t red, __uint8_t green, __uint8_t blue, __uint8_t alpha)
-// {
-// 	return (red << 24 || green << 16 || blue << 8 | alpha);
-// }
-
-__uint8_t	pixel_color(__uint8_t red, __uint8_t green, __uint8_t blue, __uint8_t alpha)
+__uint32_t	pixel_color(__uint32_t red, __uint32_t green, __uint32_t blue, __uint32_t alpha)
 {
-	return (alpha << 24 || red << 16 || green << 8 || blue );
+	return (alpha << 24 |red << 16 | green << 16 | blue);
 }
 
 void	render_pixel(int x, int y, t_cmplx *cmplx)
@@ -109,16 +113,16 @@ void	render_pixel(int x, int y, t_cmplx *cmplx)
 		new_y /= aspect_ratio;
 	cmplx->creal = new_x;
 	cmplx->ci = new_y;
+	cmplx->zreal = new_x;
+	cmplx->zi = new_y;
 }
 
-int	calc_point(t_cmplx *cmplx)
+int	calc_mandelbrot(t_cmplx *cmplx)
 {
 	float	tmp_real;
-	float	sum;
 	int		i;
 
 	tmp_real = 0;
-	sum = 0;
 	i = 0;
 	cmplx->zreal = 0;
 	cmplx->zi = 0;
@@ -153,24 +157,60 @@ void	mandelbrot(t_fractol *fractol)
 		while (x < WIDTH)
 		{
 			render_pixel(x, y, &cmplx);
-			color = calc_point(&cmplx);
+			color = calc_mandelbrot(&cmplx);
 			if (color >= 20 && color < 40)
-				put_pixel(&fractol->data, x, y, RED);
+				put_pixel(&fractol->data, x, y, pixel_color(255, 0, 0, 255));
 			else if (color >= 40 && color < 70)
-				put_pixel(&fractol->data, x, y, BLUE);
+				put_pixel(&fractol->data, x, y, pixel_color(0, 0, 255, 255));
 			else if (color >= 70 && color < 100)
-				put_pixel(&fractol->data, x, y, GREEN);
+				put_pixel(&fractol->data, x, y, pixel_color(0, 255, 255, 255));
 			else if (color >= 100 && color < 200)
-				put_pixel(&fractol->data, x, y, YELLOW);
+				put_pixel(&fractol->data, x, y, pixel_color(255, 255, 0, 255));
 			else if (color == 200)
-				put_pixel(&fractol->data, x, y, MAGENTA);
+				put_pixel(&fractol->data, x, y, pixel_color(255, 0, 255, 255));
 			else
-				put_pixel(&fractol->data, x, y, BLACK);
+				put_pixel(&fractol->data, x, y, pixel_color(0, 0, 0, 255));
 			x++;
 		}
 		y++;
 		x = 0;
 	}
+}
+
+int	calc_julia(t_cmplx *cmplx, char **argv)
+{
+	float	sum;
+	int		i;
+
+	sum = 0;
+	i = 0;
+	cmplx->creal = to_float(argv[2]);
+	cmplx->ci = to_float(argv[3]);
+	while (i < 10)
+	{
+		
+	}
+}
+
+void	julia(t_fractol *fractol, char **argv)
+{
+	t_cmplx	cmplx;
+	int		x;
+	int		y;
+	int		color;
+
+	x = 0;
+	y = 0;
+	color = 0;
+	while (y < HEIGHT)
+	{
+		while (x < WIDTH)
+		{
+			render_pixel(x, y, &cmplx);
+			color = calc_julia(&cmplx, argv);
+		}
+	}
+
 }
 
 int	keyhooks(int keysym, t_fractol *fractol)
@@ -180,7 +220,7 @@ int	keyhooks(int keysym, t_fractol *fractol)
 	return (0);
 }
 
-void	fractol()
+void	fractol(int argc, char **argv)
 {
 	t_fractol	fractol;
 
@@ -196,15 +236,72 @@ void	fractol()
 	fractol.data.addr = mlx_get_data_addr(fractol.data.img, &fractol.data.bpp, &fractol.data.len, &fractol.data.endian);
 	if (!fractol.data.addr)
 		free_exit(&fractol);
-	// mandelbrot(&fractol);
+	if (ft_strncmp(argv[1], "mandelbrot", 11) == 0)
+		mandelbrot(&fractol);
+	else
+		julia(&fractol, argv);
 	mlx_put_image_to_window(fractol.mlx, fractol.win, fractol.data.img, 0, 0);
 	mlx_key_hook(fractol.win, keyhooks, &fractol);
 	mlx_loop(fractol.mlx);
 	free_exit(&fractol);
 }
 
-int	main(void)
+bool	is_float(char *str)
 {
-	fractol();
-	return (0);
+	int	i;
+	int	sign;
+	int	point;
+
+	i = 0;
+	sign = 1;
+	point = 0;
+	if (str[i] == '+' || str[i] == '-')
+	{
+		if (str[i] == '-')
+			sign = -1;
+		point = 1;
+		i++;
+	}
+	while (str[i])
+	{
+		if (str[i] == '.' && i == 1 && point == 0)
+			i++;
+		else if (str[i] == '.' && i == 2 && point == 1)
+			i++;
+		else if (str[i] >= '0' && str[i] <= '9')
+			i++;
+		else
+			return (false);
+	}
+	return (true);
 }
+
+// int	to_float()
+
+int	main(int argc, char *argv[])
+{
+	if ((argc == 2) && ft_strncmp(argv[1], "mandelbrot", 11) == 0)
+	{
+		printf("mandelbrot succes\n");
+		fractol(argc, argv);
+	}
+	else if ((argc == 2) && ft_strncmp(argv[1], "julia", 6) == 0)
+	{
+		printf ("only julia\n");
+		fractol(argc, argv);
+	}
+	else if ((argc == 4) && (ft_strncmp(argv[1], "julia", 6) == 0) &&
+		is_float(argv[2]) && is_float(argv[3]))
+		{
+			printf("julia with two succesfull floats\n");
+			fractol(argc, argv);
+		}
+	else if ((argc == 4) && (ft_strncmp(argv[1], "julia", 6) == 0) &&
+		!is_float(argv[2]) && !is_float(argv[3]))
+		{
+			printf("julia but invalid floats\n");
+		}
+	else
+		available_params();
+	return (0);
+	}

@@ -6,7 +6,7 @@
 /*   By: mmisumi <mmisumi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 12:14:19 by mmisumi           #+#    #+#             */
-/*   Updated: 2025/05/13 14:11:56 by mmisumi          ###   ########.fr       */
+/*   Updated: 2025/05/13 16:14:44 by mmisumi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ typedef struct s_data
 typedef struct s_complex
 {
 	float	real;
+	float	i;
 }			t_complex;
 
 
@@ -42,8 +43,6 @@ typedef struct	s_fractol
 	void		*mlx;
 	void		*win;
 	t_data		data;
-	t_complex	z;
-	t_complex	c;
 }				t_fractol;
 
 typedef struct s_renderpix
@@ -130,20 +129,20 @@ bool	calc_point(t_complex *z, t_complex *c)
 	sum = 0;
 	i = 0;
 
-	z_real = 0;
+	z->real = 0;
 	z->i = 0;
 	while(i < 200)
 	{
 		//z^2
-		tmp_real = (complex->z_real * complex->z_real) - (z->i * z->i);
-		z->i = (2 * complex->z_real * z->i);
-		complex->z_real = tmp_real;
+		tmp_real = (z->real * z->real) - (z->i * z->i);
+		z->i = (2 * z->real * z->i);
+		z->real = tmp_real;
 
 		//z^2 + c
-		complex->z_real += c->real;
+		z->real += c->real;
 		z->i += c->i;
 
-		if ((complex->z_real *complex->z_real + z->i * z->i) > 4.0)
+		if ((z->real *z->real + z->i * z->i) > 4.0)
 			return (false);
 		i++;
 	}
@@ -166,7 +165,8 @@ void	put_pixel(t_fractol *fractol, int x, int y, int color)
 
 void	mandelbrot(t_fractol *fractol)
 {
-	t_complex	complex;
+	t_complex	z;
+	t_complex	c;
 	int			x;
 	int			y;
 	int			color;
@@ -178,8 +178,7 @@ void	mandelbrot(t_fractol *fractol)
 	{
 		while (x < WIDTH)
 		{
-			render_pixel(x, y, &complex);
-			
+			render_pixel(x, y, &z, &c);
 			if (calc_point(&z, &c) == false)
 			{
 				// color = pixel_color(0, 0, 0, 255);
