@@ -5,78 +5,178 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mmisumi <mmisumi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/08 11:51:17 by mmisumi           #+#    #+#             */
-/*   Updated: 2025/05/12 15:29:53 by mmisumi          ###   ########.fr       */
+/*   Created: 2025/05/15 13:05:27 by mmisumi           #+#    #+#             */
+/*   Updated: 2025/05/15 15:27:08 by mmisumi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fractol.h"
 
-void	exit_free()
+int	calc_fractol(t_cmplx *cmplx)
 {
-	exit(1);
-}
+	float	temp_real;
+	int		i;
 
-void	julia(int argc, char **argv)
-{
-	(void)argc;
-	(void)argv;
-	ft_printf("julia\n");
-	// if (argc == 2)
-	exit_free();
-}
-
-void	mandelbrot(int argc, char **argv)
-{
-	(void)argc;
-	(void)argv;
-	ft_printf("mandelbrot\n");
-	exit_free();
-}
-
-//still to do
-bool	is_valid(char *str)
-{
-	int	i;
-	int	sign;
-
+	temp_real = 0;
 	i = 0;
-	sign = 1;
-	if ((str[i] == '+' || str[i] == '-') && ft_strlen(str) > 1)
+	while (i < ITERS)
 	{
-		if (str[i] == '-')
-			sign = -1;
+		temp_real = (cmplx->zreal * cmplx->zreal) - (cmplx->zi * cmplx->zi);
+		cmplx->zi = (2 * cmplx->zreal * cmplx->zi);
+		cmplx->zreal = temp_real;
+
+		cmplx->zreal += cmplx->creal;
+		cmplx->zi += cmplx->ci;
+
+		if ((cmplx->zreal * cmplx->zreal + cmplx->zi * cmplx->zi) > 4.0)
+			return (i);
 		i++;
 	}
-	while (str[i])
-	{
-		if (str[i] < '0' || str[i] > '9')
-	}
-	return (0);
+	return (i);
 }
 
-void	available_params()
-{
-	ft_printf("Invalid parameters,\n");
-	ft_printf("Some available parameters:\n\n");
-	ft_printf("mandelbrot\njulia\njulia -1,12 1,453\n");
-	exit(2);
-}
+// void	calc_julia(t_cmplx *cmplx)
+// {
+// 	float	temp_real;
+// 	int		i;
 
-int	main(int argc, char *argv[])
+// 	temp_real = 0;
+// 	i = 0;
+// 	while (i < ITERS)
+// 	{
+// 		temp_real = (cmplx->zreal * cmplx->zreal) - (cmplx->zi * cmplx->zi);
+// 		cmplx->zi = (2 * cmplx->zreal * cmplx->zi);
+// 		cmplx->zreal = temp_real;
+
+// 		cmplx->zreal += cmplx->creal;
+// 		cmplx->zi += cmplx->ci;
+
+// 		if ((cmplx->zreal * cmplx->zreal + cmplx->zi * cmplx->zi) > 4.0)
+// 			return (i);
+// 		i++;
+// 	}
+// 	return (i);
+// }
+
+void	mandelbrot(t_fractol *fractol)
 {
-	if (argc == 2 || argc == 4)
+	t_cmplx	cmplx;
+	int			x;
+	int			y;
+	int			color;
+	int			index;
+
+	x = 0;
+	y = 0;
+	color = 0;
+	index = 0;
+	while (y < HEIGHT)
 	{
-		if ((argc == 2) && ft_strncmp(argv[1], "mandelbrot", 11) == 0)
-			mandelbrot(argc, argv);
-		else if ((argc == 2) && ft_strncmp(argv[1], "julia", 6) == 0)
-			julia(argc, argv);
-		else if ((argc == 4) && ft_strncmp(argv[1], "julia", 6) == 0)
+		while (x < WIDTH)
 		{
-			if (is_valid(argv[3]) && is_valid(argv[4]))
-				julia(argc, argv);
+			render_pixel(x, y, &cmplx, &fractol->pix);
+			cmplx.zreal = 0;
+			cmplx.zi = 0;
+			color = calc_fractol(&cmplx);
+			index = (color * (MAX_COLORS - 1) / ITERS);
+			put_pixel(&fractol->data, x, y, fractol->palette[index]);
+			// if (color >= (WIDTH / 50 / 2) && color < (WIDTH / 25 / 2))
+			// 	put_pixel(&fractol->data, x, y, pixel_color(255, 0, 0, 255));
+			// else if (color >= (WIDTH / 25 / 2) && color < (WIDTH / 14 / 2))
+			// 	put_pixel(&fractol->data, x, y, pixel_color(0, 0, 255, 255));
+			// else if (color >= (WIDTH / 14 / 2) && color < (WIDTH / 10 / 2))
+			// 	put_pixel(&fractol->data, x, y, pixel_color(0, 255, 255, 255));
+			// else if (color >= (WIDTH / 10 / 2) && color < (WIDTH / 5 / 2))
+			// 	put_pixel(&fractol->data, x, y, pixel_color(255, 255, 0, 255));
+			// else if (color == (WIDTH / 5 / 2))
+			// 	put_pixel(&fractol->data, x, y, pixel_color(0, 0, 255, 255));
+			// else
+			// 	put_pixel(&fractol->data, x, y, pixel_color(0, 0, 0, 255));
+			x++;
 		}
+		y++;
+		x = 0;
 	}
-	available_params();
-	return (0);
+}
+
+void	julia(t_fractol *fractol)
+{
+	t_cmplx	cmplx;
+	int		x;
+	int		y;
+	int		color;
+
+	x = 0;
+	y = 0;
+	color = 0;
+	while (y < HEIGHT)
+	{
+		while (x < WIDTH)
+		{
+			render_pixel(x, y, &cmplx, &fractol->pix);
+			cmplx.creal = fractol->julia_real;
+			cmplx.ci = fractol->julia_i;
+			color = calc_fractol(&cmplx);
+			if (color >= (WIDTH / 50 / 2) && color < (WIDTH / 25 / 2))
+				put_pixel(&fractol->data, x, y, pixel_color(255, 0, 0, 255));
+			else if (color >= (WIDTH / 25 / 2) && color < (WIDTH / 14 / 2))
+				put_pixel(&fractol->data, x, y, pixel_color(0, 0, 255, 255));
+			else if (color >= (WIDTH / 14 / 2) && color < (WIDTH / 10 / 2))
+				put_pixel(&fractol->data, x, y, pixel_color(0, 255, 255, 255));
+			else if (color >= (WIDTH / 10 / 2) && color < (WIDTH / 5 / 2))
+				put_pixel(&fractol->data, x, y, pixel_color(255, 255, 0, 255));
+			else if (color == (WIDTH / 5 / 2))
+				put_pixel(&fractol->data, x, y, pixel_color(0, 0, 255, 255));
+			else
+				put_pixel(&fractol->data, x, y, pixel_color(0, 0, 0, 255));
+			x++;
+			
+		}
+		y++;
+		x = 0;
+	}
+}
+
+void	fractol(int argc, char **argv)
+{
+	t_fractol	fractol;
+	init_palette(fractol.palette);
+	init_pix(&fractol.pix);
+	fractol.mlx = mlx_init();
+	if (!fractol.mlx)
+		free_exit(&fractol);
+	fractol.win = mlx_new_window(fractol.mlx, WIDTH, HEIGHT, "mandelbrot");
+	if (!fractol.win)
+		free_exit(&fractol);
+	fractol.data.img = mlx_new_image(fractol.mlx, WIDTH, HEIGHT);
+	if (!fractol.data.img)
+		free_exit(&fractol);
+	fractol.data.addr = mlx_get_data_addr(fractol.data.img, &fractol.data.bpp, &fractol.data.len, &fractol.data.endian);
+	if (!fractol.data.addr)
+		free_exit(&fractol);
+	if (ft_strncmp(argv[1], "mandelbrot", 11) == 0)
+	{
+		fractol.fractol = MANDELBROT;
+		mandelbrot(&fractol);
+	}
+	else if (ft_strncmp(argv[1], "julia", 6) == 0)
+	{
+		fractol.fractol = JULIA;
+		fractol.julia_real = to_float(argv[2]);
+		fractol.julia_i = to_float(argv[3]);
+		julia(&fractol);
+	}
+	else
+	{
+		fractol.fractol = JULIA;
+		fractol.julia_real = to_float(argv[1]);
+		fractol.julia_i = to_float(argv[2]);
+		julia(&fractol);
+	}
+	mlx_put_image_to_window(fractol.mlx, fractol.win, fractol.data.img, 0, 0);
+	mlx_hook(fractol.win, 17, 0, close_window, &fractol);
+	mlx_hook(fractol.win, 4, 4, click, &fractol);
+	mlx_key_hook(fractol.win, keyhooks, &fractol);
+	mlx_loop(fractol.mlx);
+	free_exit(&fractol);
 }
