@@ -6,32 +6,34 @@
 /*   By: mmisumi <mmisumi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/15 13:12:09 by mmisumi           #+#    #+#             */
-/*   Updated: 2025/05/15 15:16:45 by mmisumi          ###   ########.fr       */
+/*   Updated: 2025/05/16 20:45:59 by mmisumi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fractol.h"
+
+int	pixel_color(int alpha, int red, int green, int blue)
+{
+	return (alpha << 24 | red << 16 | green << 8 | blue);
+}
+
+void	init_palette(uint32_t *palette)
+{
+	if (!palette)
+		return ;
+	palette[0] = pixel_color(255, 0, 0, 0);
+	palette[1] = pixel_color(255, 0, 0, 255);
+	palette[2] = pixel_color(255, 255, 0, 255);
+	palette[3] = pixel_color(255, 255, 0, 0);
+	palette[4] = pixel_color(255, 0, 0, 0);
+}
 
 void	put_pixel(t_data *data, int x, int y, int color)
 {
 	char	*point;
 
 	point = data->addr + (y * data->len + x * (data->bpp / 8));
-	*(unsigned int*)point = color;
-}
-
-__uint32_t	pixel_color(__uint32_t red, __uint32_t green, __uint32_t blue, __uint32_t alpha)
-{
-	return (alpha << 24 |red << 16 | green << 16 | blue);
-}
-
-void	init_palette(uint32_t *palette)
-{
-	palette[0] = pixel_color(255, 0, 0, 255); //red
-	palette[1] = pixel_color(0, 0, 255, 255); //blue
-	palette[2] = pixel_color(0, 255, 255, 255); //cyan
-	palette[3] = pixel_color(255, 255, 0, 255); //yellow
-	palette[4] = pixel_color(0, 0, 0, 255); //black
+	*(unsigned int *)point = color;
 }
 
 void	init_pix(t_pix *pix)
@@ -41,9 +43,9 @@ void	init_pix(t_pix *pix)
 	pix->width = WIDTH;
 	pix->height = HEIGHT;
 	pix->x_min = -2.0;
-	pix->x_max = 1.0;
-	pix->y_max = 1.5;
-	pix->y_min = -1.5;
+	pix->x_max = 2.0;
+	pix->y_max = -2.0;
+	pix->y_min = 2.0;
 	aspect_ratio = pix->width / pix->height;
 	if (aspect_ratio > 1)
 	{
