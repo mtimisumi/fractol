@@ -21,7 +21,7 @@ int	keyhooks(int keysym, t_fract *fract)
 		move(keysym, fract);
 	if (keysym == XK_Up || keysym == XK_Down)
 		zoom(keysym, fract);
-	if (keysym == XK_Left | keysym == XK_Right)
+	if (keysym == XK_Left || keysym == XK_Right)
 		change_iters(keysym, fract);
 	put_image(fract);
 	return (0);
