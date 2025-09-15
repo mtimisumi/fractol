@@ -6,7 +6,7 @@
 /*   By: mmisumi <mmisumi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/15 13:12:09 by mmisumi           #+#    #+#             */
-/*   Updated: 2025/05/16 20:45:59 by mmisumi          ###   ########.fr       */
+/*   Updated: 2025/05/16 15:44:41 by mmisumi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int	pixel_color(int alpha, int red, int green, int blue)
 {
-	return (alpha << 24 | red << 16 | green << 8 | blue);
+	return (alpha << 24 | red << 16 | green << 16 | blue);
 }
 
 void	init_palette(uint32_t *palette)
@@ -44,8 +44,8 @@ void	init_pix(t_pix *pix)
 	pix->height = HEIGHT;
 	pix->x_min = -2.0;
 	pix->x_max = 2.0;
-	pix->y_max = -2.0;
-	pix->y_min = 2.0;
+	pix->y_max = 2.0;
+	pix->y_min = -2.0;
 	aspect_ratio = pix->width / pix->height;
 	if (aspect_ratio > 1)
 	{

@@ -6,7 +6,7 @@
 /*   By: mmisumi <mmisumi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 13:07:47 by mmisumi           #+#    #+#             */
-/*   Updated: 2025/05/16 14:17:20 by mmisumi          ###   ########.fr       */
+/*   Updated: 2025/05/16 15:53:48 by mmisumi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ void	click(int button, int px, int py, t_fract *fract);
 void	scroll(int button, t_fract *fract);
 void	move(int keysym, t_fract *fract);
 
-int		pixel_color(int red, int green, int blue, int alpha);
+int		pixel_color(int alpha, int red, int green, int blue);
 void	init_palette(uint32_t *palette);
 void	put_pixel(t_data *data, int x, int y, int color);
 void	init_pix(t_pix *pix);

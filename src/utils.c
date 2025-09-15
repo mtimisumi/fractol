@@ -43,11 +43,9 @@ void	move(int keysym, t_fract *fract)
 
 void	scroll(int button, t_fract *fract)
 {
-	float	x;
 	float	x_range;
 	float	y_range;
 
-	x = 1;
 	x_range = fract->pix.x_max - fract->pix.x_min;
 	y_range = fract->pix.y_max - fract->pix.y_min;
 	if (button == 4)

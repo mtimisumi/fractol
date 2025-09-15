@@ -12,52 +12,43 @@
 
 NAME := fractol
 
-SRCDIR := src
-OBJDIR := obj
+SRCS:= src/main.c src/validate.c src/fractol.c src/hooks.c src/pixelstuff.c src/utils.c
 
-SRCS:= $(SRCDIR)/main.c \
-		$(RSCDIR)/validate.c \
-		$(RSCDIR)/fractol.c \
-		$(RSCDIR)/hooks.c \
-		$(RSCDIR)/pixelstuff.c \
-		$(SRCDIR)/utils.c
+OBJS := $(patsubst src/%.c, obj/%.o, $(SRCS))
 
-OBJS := $(addprefix $(OBJDIR)/, $(notdir $(SRCS:.c=.o)))
 
-LIBFT := libft/libft.a
+LIBFT = libft/libft.a
 
-FT_PRINTF := ft_printf/libftprintf.a
-
-MLX = mlx_linux
+PRINTF = ft_print/libftprintf.a
 
 CC := cc
-CFLAGS := -g -I. -Ilibft -Ift_printf -Wall -Werror -Wextra
+CFLAGS := -g -I. -Ilibft -Ift_printf -Imlx_linux  -O3 -Wall -Werror -Wextra
 
 RM := rm -f 
 
-all: minilibx $(LIBFT) $(FT_PRINTF) $(OBJDIR) $(NAME)
+all: minilibx $(LIBFT) $(PRINTF) obj $(NAME)
 
-$(OBJDIR):
-	mkdir -p $(OBJDIR)
+obj:
+	mkdir -p obj
 
 $(LIBFT):
 	make -C libft
 
-$(FT_PRINTF):
+$(PRINTF):
 	make -C ft_printf
 
 minilibx:
-	@[ -f "$(MLX)/libmlx.a" ] || (cd $(MLX) && make)
+	@[ -f "mlx_linux/libmlx.a" ] || (cd mlx_linux && make)
 
-$(NAME): $(OBJS) $(LIBFT) $(FT_PRINTF)
-	$(CC) $(CFLAGS) $(MLX_FLAGS) $(OBJS) -o $(NAME) -Llibft -lft -Lft_printf -lftprintf -Lmlx_linux -lmlx_Linux -L/usr/lib -Imlx_linux -lXext -lX11 -lm -lz -I/opt/X11/include
+$(NAME): $(OBJS) $(LIBFT) $(PRINTF)
+	$(CC) $(CFLAGS) $(OBJS) -Llibft -lft -Lft_printf -lftprintf -Lmlx_linux -lmlx -lXext -lX11 -lm -lz -o $(NAME)
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@ -I/usr/include -Imlx_linux -O3
+obj/%.o: src/%.c
+	$(CC) $(CFLAGS) -Imlx_linux -c $< -o $@
 
 clean:
 	$(RM) $(OBJS)
-	$(RM) -r $(OBJDIR)
+	$(RM) -r obj
 	make -C libft clean
 	make -C ft_printf clean
 
