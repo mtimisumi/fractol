@@ -6,20 +6,20 @@
 /*   By: mmisumi <mmisumi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/15 13:05:27 by mmisumi           #+#    #+#             */
-/*   Updated: 2025/05/16 13:34:50 by mmisumi          ###   ########.fr       */
+/*   Updated: 2025/09/15 16:00:22 by mmisumi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fractol.h"
 
-int	calc_fractol(t_cmplx *cmplx)
+int	calc_fractol(t_cmplx *cmplx, float iters)
 {
 	float	temp_real;
 	int		i;
 
 	temp_real = 0;
 	i = 0;
-	while (i < ITERS)
+	while (i < iters)
 	{
 		temp_real = (cmplx->zreal * cmplx->zreal) - (cmplx->zi * cmplx->zi);
 		cmplx->zi = (2 * cmplx->zreal * cmplx->zi);
@@ -52,7 +52,7 @@ void	mandelbrot(t_fract *fract)
 			render_pixel(x, y, &cmplx, &fract->pix);
 			cmplx.zreal = 0;
 			cmplx.zi = 0;
-			color_index = (calc_fractol(&cmplx) * (MAX_COLORS - 1) / ITERS);
+			color_index = (calc_fractol(&cmplx, fract->pix.iters) * (MAX_COLORS - 1) / ITERS);
 			put_pixel(&fract->data, x, y, palette[color_index]);
 			x++;
 		}
@@ -80,7 +80,7 @@ void	julia(t_fract *fract)
 			render_pixel(x, y, &cmplx, &fract->pix);
 			cmplx.creal = fract->julia_real;
 			cmplx.ci = fract->julia_i;
-			color_index = (calc_fractol(&cmplx) * (MAX_COLORS - 1) / ITERS);
+			color_index = (calc_fractol(&cmplx, fract->pix.iters) * (MAX_COLORS - 1) / ITERS);
 			put_pixel(&fract->data, x, y, palette[color_index]);
 			x++;
 		}

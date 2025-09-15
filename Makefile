@@ -6,7 +6,7 @@
 #    By: mmisumi <mmisumi@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/05/08 13:18:47 by mmisumi           #+#    #+#              #
-#    Updated: 2025/05/16 14:54:27 by mmisumi          ###   ########.fr        #
+#    Updated: 2025/09/15 14:56:58 by mmisumi          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,8 +21,7 @@ LIBFT = libft/libft.a
 
 PRINTF = ft_print/libftprintf.a
 
-CC := cc
-CFLAGS := -g -I. -Ilibft -Ift_printf -Imlx_linux  -O3 -Wall -Werror -Wextra
+CC := cc -Wall -Werror -Wextra -g -I. -Ilibft -Ift_printf -Imlx_linux  -O3
 
 RM := rm -f 
 
@@ -41,10 +40,10 @@ minilibx:
 	@[ -f "mlx_linux/libmlx.a" ] || (cd mlx_linux && make)
 
 $(NAME): $(OBJS) $(LIBFT) $(PRINTF)
-	$(CC) $(CFLAGS) $(OBJS) -Llibft -lft -Lft_printf -lftprintf -Lmlx_linux -lmlx -lXext -lX11 -lm -lz -o $(NAME)
+	$(CC) $(OBJS) -Llibft -lft -Lft_printf -lftprintf -Lmlx_linux -lmlx -lXext -lX11 -lm -lz -o $(NAME)
 
 obj/%.o: src/%.c
-	$(CC) $(CFLAGS) -Imlx_linux -c $< -o $@
+	$(CC) -Imlx_linux -c $< -o $@
 
 clean:
 	$(RM) $(OBJS)

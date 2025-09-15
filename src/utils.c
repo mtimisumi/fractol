@@ -6,7 +6,7 @@
 /*   By: mmisumi <mmisumi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 13:19:30 by mmisumi           #+#    #+#             */
-/*   Updated: 2025/05/16 13:31:26 by mmisumi          ###   ########.fr       */
+/*   Updated: 2025/09/15 16:06:00 by mmisumi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,41 @@ void	move(int keysym, t_fract *fract)
 	{
 		fract->pix.x_max += 0.10 * x_range;
 		fract->pix.x_min += 0.10 * x_range;
+	}
+}
+
+void	zoom(int keysym, t_fract *fract)
+{
+	float	x_range;
+	float	y_range;
+
+	x_range = fract->pix.x_max - fract->pix.x_min;
+	y_range = fract->pix.y_max - fract->pix.y_min;
+	if (keysym == XK_Up)
+	{
+		fract->pix.x_max -= (x_range * 0.10);
+		fract->pix.x_min += (x_range * 0.10);
+		fract->pix.y_max -= (y_range * 0.10);
+		fract->pix.y_min += (y_range * 0.10);
+	}
+	if (keysym == XK_Down)
+	{
+		fract->pix.x_max += (x_range * 0.10);
+		fract->pix.x_min -= (x_range * 0.10);
+		fract->pix.y_max += (y_range * 0.10);
+		fract->pix.y_min -= (y_range * 0.10);
+	}
+}
+
+void	change_iters(int keysym, t_fract *fract)
+{
+	if (keysym == XK_Left)
+	{
+		fract->pix.iters /= 0.90;
+	}
+	if (keysym == XK_Right)
+	{
+		fract->pix.iters *= 1.10;
 	}
 }
 

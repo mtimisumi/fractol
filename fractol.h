@@ -6,7 +6,7 @@
 /*   By: mmisumi <mmisumi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 13:07:47 by mmisumi           #+#    #+#             */
-/*   Updated: 2025/05/16 15:53:48 by mmisumi          ###   ########.fr       */
+/*   Updated: 2025/09/15 16:03:06 by mmisumi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ typedef struct s_pix
 	float	x_max;
 	float	y_max;
 	float	y_min;
+	float	iters;
 }			t_pix;
 
 typedef struct s_fract
@@ -79,15 +80,18 @@ float	decimals(char *str);
 void	create_fractol(t_fract *fract);
 void	julia(t_fract *fract);
 void	mandelbrot(t_fract *fract);
-int		calc_fractol(t_cmplx *cmplx);
+int		calc_fractol(t_cmplx *cmplx, float iters);
 
 int		keyhooks(int keysym, t_fract *fract);
 int		mouse(int button, int x, int y, t_fract *fract);
 int		close_window(t_fract *fract);
 void	put_image(t_fract *fract);
+
 void	click(int button, int px, int py, t_fract *fract);
 void	scroll(int button, t_fract *fract);
 void	move(int keysym, t_fract *fract);
+void	zoom(int keysym, t_fract *fract);
+void	change_iters(int keysym, t_fract *fract);
 
 int		pixel_color(int alpha, int red, int green, int blue);
 void	init_palette(uint32_t *palette);

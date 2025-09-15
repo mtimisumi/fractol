@@ -6,7 +6,7 @@
 /*   By: mmisumi <mmisumi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/15 13:12:09 by mmisumi           #+#    #+#             */
-/*   Updated: 2025/05/16 15:44:41 by mmisumi          ###   ########.fr       */
+/*   Updated: 2025/09/15 15:58:37 by mmisumi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ void	init_pix(t_pix *pix)
 	pix->x_max = 2.0;
 	pix->y_max = 2.0;
 	pix->y_min = -2.0;
+	pix->iters = ITERS;
 	aspect_ratio = pix->width / pix->height;
 	if (aspect_ratio > 1)
 	{

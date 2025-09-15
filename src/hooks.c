@@ -6,7 +6,7 @@
 /*   By: mmisumi <mmisumi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/15 13:08:18 by mmisumi           #+#    #+#             */
-/*   Updated: 2025/05/16 13:24:14 by mmisumi          ###   ########.fr       */
+/*   Updated: 2025/09/15 16:01:37 by mmisumi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,10 @@ int	keyhooks(int keysym, t_fract *fract)
 	if (keysym == XK_w || keysym == XK_s
 		|| keysym == XK_a || keysym == XK_d)
 		move(keysym, fract);
+	if (keysym == XK_Up || keysym == XK_Down)
+		zoom(keysym, fract);
+	if (keysym == XK_Left | keysym == XK_Right)
+		change_iters(keysym, fract);
 	put_image(fract);
 	return (0);
 }
